@@ -1,0 +1,197 @@
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local player = players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- 创建主界面
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "ControlPanel"
+screenGui.Parent = playerGui
+
+-- 主面板框架
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainPanel"
+mainFrame.Size = UDim2.new(0.4, 0, 0.7, 0)
+mainFrame.Position = UDim2.new(0.3, 0, 0.15, 0)
+mainFrame.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+mainFrame.BorderSizePixel = 0
+mainFrame.BackgroundTransparency = 0.1
+mainFrame.ClipsDescendants = true
+
+-- 圆角效果
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = mainFrame
+
+-- 阴影效果
+local shadow = Instance.new("UIStroke")
+shadow.Color = Color3.new(0, 0, 0)
+shadow.Transparency = 0.7
+shadow.Thickness = 3
+shadow.Parent = mainFrame
+
+mainFrame.Parent = screenGui
+
+-- 标题栏
+local titleBar = Instance.new("Frame")
+titleBar.Name = "TitleBar"
+titleBar.Size = UDim2.new(1, 0, 0, 50)
+titleBar.BackgroundColor3 = Color3.new(0.25, 0.4, 0.8)
+titleBar.BorderSizePixel = 0
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 12)
+titleCorner.Parent = titleBar
+
+titleBar.Parent = mainFrame
+
+-- 标题文本
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, -80, 1, 0)
+titleLabel.Position = UDim2.new(0, 15, 0, 0)
+titleLabel.Text = "控制面板"
+titleLabel.TextColor3 = Color3.new(1, 1, 1)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.BackgroundTransparency = 1
+titleLabel.Parent = titleBar
+
+-- 最小化按钮
+local minimizeBtn = Instance.new("TextButton")
+minimizeBtn.Size = UDim2.new(0, 40, 0, 40)
+minimizeBtn.Position = UDim2.new(1, -50, 0, 5)
+minimizeBtn.Text = "−"
+minimizeBtn.TextColor3 = Color3.new(1, 1, 1)
+minimizeBtn.TextSize = 24
+minimizeBtn.BackgroundColor3 = Color3.new(0.3, 0.5, 0.9)
+minimizeBtn.BorderSizePixel = 0
+
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 8)
+btnCorner.Parent = minimizeBtn
+
+-- 点击反馈
+minimizeBtn.MouseButton1Down:Connect(function()
+    minimizeBtn.BackgroundColor3 = Color3.new(0.2, 0.35, 0.7)
+end)
+minimizeBtn.MouseButton1Up:Connect(function()
+    minimizeBtn.BackgroundColor3 = Color3.new(0.3, 0.5, 0.9)
+end)
+
+minimizeBtn.Parent = titleBar
+
+-- 面板内容区域
+local contentFrame = Instance.new("Frame")
+contentFrame.Size = UDim2.new(1, 0, 1, -50)
+contentFrame.Position = UDim2.new(0, 0, 0, 50)
+contentFrame.BackgroundTransparency = 1
+contentFrame.Parent = mainFrame
+
+-- 玩家列表标题
+local listTitle = Instance.new("TextLabel")
+listTitle.Size = UDim2.new(1, 0, 0, 30)
+listTitle.Position = UDim2.new(0, 0, 0.05, 0)
+listTitle.Text = "在线玩家"
+listTitle.TextColor3 = Color3.new(1, 1, 1)
+listTitle.TextSize = 18
+listTitle.Font = Enum.Font.Gotham
+listTitle.BackgroundTransparency = 1
+listTitle.Parent = contentFrame
+
+-- 玩家列表滚动框
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(0.8, 0, 0, 200)
+scrollFrame.Position = UDim2.new(0.1, 0, 0.15, 0)
+scrollFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+scrollFrame.BackgroundTransparency = 0.5
+scrollFrame.BorderSizePixel = 0
+scrollFrame.ScrollBarThickness = 6
+
+local scrollCorner = Instance.new("UICorner")
+scrollCorner.CornerRadius = UDim.new(0, 6)
+scrollCorner.Parent = scrollFrame
+
+scrollFrame.Parent = contentFrame
+
+-- 列表容器
+local listContainer = Instance.new("Frame")
+listContainer.Size = UDim2.new(1, 0, 0, 0)
+listContainer.Position = UDim2.new(0, 0, 0, 0)
+listContainer.BackgroundTransparency = 1
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+listContainer.Parent = scrollFrame
+
+-- 更新玩家列表函数
+local function updatePlayerList()
+    -- 清除现有列表项
+    for _, child in ipairs(listContainer:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+
+    -- 获取在线玩家
+    local onlinePlayers = players:GetPlayers()
+    local yPosition = 5
+
+    -- 创建列表项
+    for i, targetPlayer in ipairs(onlinePlayers) do
+        if targetPlayer ~= player then
+            local playerBtn = Instance.new("TextButton")
+            playerBtn.Size = UDim2.new(1, -10, 0, 35)
+            playerBtn.Position = UDim2.new(0, 5, 0, yPosition)
+            playerBtn.Text = targetPlayer.Name
+            playerBtn.TextColor3 = Color3.new(1, 1, 1)
+            playerBtn.TextSize = 16
+            playerBtn.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+            playerBtn.BorderSizePixel = 0
+
+            local btnCorner = Instance.new("UICorner")
+            btnCorner.CornerRadius = UDim.new(0, 4)
+            btnCorner.Parent = playerBtn
+
+            -- 点击传送
+            playerBtn.MouseButton1Click:Connect(function()
+                local character = player.Character
+                local targetCharacter = targetPlayer.Character
+                if character and targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                    character:WaitForChild("HumanoidRootPart").CFrame = targetCharacter.HumanoidRootPart.CFrame * CFrame.new(0, 0, -3)
+                end
+            end)
+
+            playerBtn.Parent = listContainer
+            yPosition += 40
+        end
+    end
+
+    -- 调整容器和滚动区域大小
+    listContainer.Size = UDim2.new(1, 0, 0, yPosition)
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yPosition)
+end
+
+-- 初始化列表
+updatePlayerList()
+
+-- 玩家加入/离开时更新列表
+players.PlayerAdded:Connect(updatePlayerList)
+players.PlayerRemoving:Connect(updatePlayerList)
+
+-- 最小化状态变量
+local isMinimized = false
+
+-- 最小化/还原功能
+minimizeBtn.MouseButton1Click:Connect(function()
+    if isMinimized then
+        -- 还原
+        mainFrame.Size = UDim2.new(0.4, 0, 0.7, 0)
+        contentFrame.Visible = true
+        minimizeBtn.Text = "−"
+        isMinimized = false
+    else
+        -- 最小化
+        mainFrame.Size = UDim2.new(0.4, 0, 0, 50)
+        contentFrame.Visible = false
+        minimizeBtn.Text = "□"
+        isMinimized = true
+    end
+end)
